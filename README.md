@@ -4,21 +4,15 @@
 
 _基于微博H5 API开发的机器人框架_
 
-<a href="https://pypi.org/project/WeiboBot/"><img alt="PyPI" src="https://img.shields.io/pypi/v/WeiboBot" /></a></td>
-<a href="https://pypi.org/project/WeiboBot/"><img alt="Python Version" src="https://img.shields.io/pypi/pyversions/WeiboBot" /></a>
-<a href="https://pypi.org/project/WeiboBot/"><img alt="Python Implementation" src="https://img.shields.io/pypi/implementation/WeiboBot" /></a>
+`<a href="https://pypi.org/project/WeiboBot/"><img alt="PyPI" src="https://img.shields.io/pypi/v/WeiboBot" />``</a></td>`
+`<a href="https://pypi.org/project/WeiboBot/"><img alt="Python Version" src="https://img.shields.io/pypi/pyversions/WeiboBot" />``</a>`
+`<a href="https://pypi.org/project/WeiboBot/"><img alt="Python Implementation" src="https://img.shields.io/pypi/implementation/WeiboBot" />``</a>`
 
-<a href="https://github.com/MerlinCN/WeiboBot/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/MerlinCN/WeiboBot"></a>
+`<a href="https://github.com/MerlinCN/WeiboBot/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/MerlinCN/WeiboBot">``</a>`
 
 </div>
 
-
-
 WeiboBot 是一个基于微博H5 API开发的机器人框架，提供了一个简单的接口，可以让你的机器人更加简单的接入微博，并且提供了一些简单的指令，比如：转评赞，回复消息等
-
-## 安装
-
-`pip install WeiboBot`
 
 ## 开始使用(事件驱动模式)
 
@@ -84,6 +78,16 @@ if __name__ == '__main__':
 
 ```
 
+## .env.example
+
+```shell
+BOT_COOKIES="" # 被动模式 COOKIE
+ACCOUNT1_COOKIES="" # 主动模式 COOKIE
+
+GPT_API_URL="https://api.openai.com/v1/chat/completions" # GPT API EndPoint, 可替换为中转地址
+GPT_API_KEY="sk-xxxxxxxx" # GPT API Key
+```
+
 ## 如何获取cookie
 
 登录m.weibo.cn
@@ -91,11 +95,3 @@ if __name__ == '__main__':
 按F12查看请求头
 
 ![image](https://user-images.githubusercontent.com/37311477/164148500-c6a19f75-d1fd-48e6-9850-6c5380847dcd.png)
-
-
-## 示例
-
-[好康Bot](https://github.com/MerlinCN/WeiboWatchdog)
-
-> 一个转发小姐姐的Bot
-

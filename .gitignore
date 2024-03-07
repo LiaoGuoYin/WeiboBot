@@ -142,3 +142,6 @@ tmp/
 
 #cofig json
 *.json
+
+#log files
+Log/
