@@ -10,6 +10,8 @@ import os
 import time
 from datetime import datetime
 
+from gpt.bot import no_matter_bot
+
 
 load_dotenv()
 myBot = Bot(cookies=os.getenv("BOT_COOKIES"))
