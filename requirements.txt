@@ -1,2 +1,6 @@
 requests
 tinydb
+aiohttp
+fastapi
+uvicorn
+python-dotenv
