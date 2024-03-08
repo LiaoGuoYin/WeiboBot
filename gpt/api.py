@@ -49,6 +49,7 @@ def no_matter_bot(
     print(response_json["choices"][0]["message"]["content"], response_json["usage"])
     return response_json["choices"][0]["message"]["content"]
 
+
 # 对比效果
 if __name__ == "__main__":
     GPT_MODEL_LIST = [
@@ -61,6 +62,8 @@ if __name__ == "__main__":
         for each in range(len(GPT_MODEL_LIST)):
             print(
                 GPT_MODEL_LIST[each],
-                no_matter_bot(message=PROMPT, prompt="", model=GPT_MODEL_LIST[each]),
+                no_matter_bot(
+                    message=AUTO_PROMPT, prompt="", model=GPT_MODEL_LIST[each]
+                ),
             )
         print("*" * 10)
