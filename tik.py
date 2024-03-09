@@ -45,10 +45,13 @@ async def on_tick():
     if datetime.now().minute == 0:
         print("hit tik, post now")
         await myBot.login()
-        await myBot.post_weibo(search_weibo_and_reply())
+        reply = await search_weibo_and_reply()
+        await myBot.post_weibo(reply)
         time.sleep(60)
-    else:
-        print("no tik")
+    elif datetime.now().minute % 15 == 0: # every 10 minutes
+        await myBot.login()
+        await search_weibo_and_reply()
+        time.sleep(60)
 
 
 async def search_weibo_and_reply(message="累"):
@@ -56,12 +59,13 @@ async def search_weibo_and_reply(message="累"):
     for result in result_list:
         result.text = remove_html_tags_in(result.text)
         result_len = len(result.text)
-        if result_len > 5 and result_len < 100:
+        if result_len > 10 and result_len < 100:
             reply_text = no_matter_bot(result.text, prompt=REPLY_PROMPT)
             # input(f"reply to {result.mid} {result.text} -> {reply_text}")
-            await myBot.comment_weibo(result.mid, reply_text)
+            cmt = await myBot.comment_weibo(result.mid, reply_text)
+            print("search and reply done")
             return reply_text
-    print("search and reply done")
+            # if cmt.status == "ok":  # else 作者只允许粉丝评 etc.
 
 
 if __name__ == "__main__":
