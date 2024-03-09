@@ -13,7 +13,7 @@ from GPT.api import *
 
 
 load_dotenv()
-myBot = Bot(cookies=os.getenv("BOT_COOKIES"))
+myBot = Bot(cookies=os.getenv("BOT_COOKIES"), loop_interval=30)
 
 
 @myBot.onNewWeibo  # 首页刷到时触发
@@ -26,7 +26,7 @@ async def on_weibo(weibo: Weibo):
 @myBot.onNewMsg  # 被私信的时候触发
 async def on_msg(chat: Chat):
     for msg in chat.msg_list:  # 消息列表
-        await myBot.login()
+        # await myBot.login()
         print(f"{msg.sender_screen_name}:{msg.text}")
         reply = no_matter_bot(msg.text, prompt=REPLY_PROMPT)
         print(msg.text, reply)
@@ -47,7 +47,7 @@ async def on_tick():
         reply = await search_weibo_and_reply()
         await myBot.post_weibo(reply)
         time.sleep(60)
-    elif datetime.now().minute % 21 == 0: # every  xx:21 xx:42
+    elif datetime.now().minute % 21 == 0:  # every  xx:21 xx:42
         await myBot.login()
         await search_weibo_and_reply()
         time.sleep(60)

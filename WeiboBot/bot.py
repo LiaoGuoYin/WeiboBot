@@ -1,4 +1,5 @@
 import asyncio
+import time
 from typing import Union, List, Callable
 from types import FunctionType
 
@@ -537,6 +538,7 @@ class Bot(User):
                 self.tick(),
                 self.run_action(),
             )
+            time.sleep(self.loop_interval)
             self.logger.info("Heartbeat")
 
     def run(self):
