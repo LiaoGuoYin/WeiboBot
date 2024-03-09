@@ -538,7 +538,7 @@ class Bot(User):
                 self.tick(),
                 self.run_action(),
             )
-            time.sleep(self.loop_interval)
+            await asyncio.sleep(self.loop_interval)
             self.logger.info("Heartbeat")
 
     def run(self):
