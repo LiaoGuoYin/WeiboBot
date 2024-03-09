@@ -35,7 +35,9 @@ class NetTool:
         self.header["referer"] = value
         return self.header
 
-    async def get(self, url: str, params: Dict = None, header=None, types="json") -> Dict:
+    async def get(
+        self, url: str, params: Dict = None, header=None, types="json"
+    ) -> Dict:
         if header is None:
             header = self.header
         async with self.session.get(url, headers=header, params=params) as r:
@@ -48,7 +50,9 @@ class NetTool:
                 result = await r.text()
             return result
 
-    async def post(self, url: str, params: Dict = None, header=None, types="json") -> Dict:
+    async def post(
+        self, url: str, params: Dict = None, header=None, types="json"
+    ) -> Dict:
         if header is None:
             header = self.header
         async with self.session.post(url, headers=header, data=params) as r:
@@ -72,12 +76,12 @@ class NetTool:
         url = "https://m.weibo.cn/api/config"
         self.add_ref(url)
         data = await self.get(url)
-        isLogin = data['data']['login']
+        isLogin = data["data"]["login"]
         if not isLogin:
             return False, 0
         st = data["data"]["st"]
         self.header["x-xsrf-token"] = st
-        roleid = int(data['data']['uid'])
+        roleid = int(data["data"]["uid"])
         return True, roleid
 
     async def st(self):
@@ -111,7 +115,7 @@ class NetTool:
             "content": content,
             "visible": visible.value,
             "st": await self.st(),
-            "_spr": "screen:2560x1440"
+            "_spr": "screen:2560x1440",
         }
 
         return await self.post("https://m.weibo.cn/api/statuses/update", params=params)
@@ -125,7 +129,7 @@ class NetTool:
             "mid": mid,
             "st": self.header["x-xsrf-token"],
             "_spr": "screen:2560x1440",
-            "dualPost": int(dualPost)
+            "dualPost": int(dualPost),
         }
         return await self.post("https://m.weibo.cn/api/statuses/repost", params=data)
 
@@ -134,8 +138,9 @@ class NetTool:
         r = await self.get(url, types="text")
         weibo_info = {}
         try:
-            weibo_info = json.loads(re.findall(r'(?<=render_data = \[)[\s\S]*(?=\]\[0\])', r)[0])[
-                "status"]
+            weibo_info = json.loads(
+                re.findall(r"(?<=render_data = \[)[\s\S]*(?=\]\[0\])", r)[0]
+            )["status"]
         except IndexError:
             self.logger.error(f"{url} 解析错误 \n{r.text}")
             raise RequestError("解析微博信息错误")
@@ -143,30 +148,28 @@ class NetTool:
         return weibo_info
 
     async def upload_chat_file(self, tuid, file_path):
-        files = {
-            "file": (file_path, open(file_path, 'rb'), 'image/jpeg')
-        }
-        data = {
-            "tuid": tuid,
-            "st": await self.st(),
-            "_spr": "screen:2560x1440"
-        }
-        r = requests.post("https://m.weibo.cn/api/chat/upload", headers=self.header, data=data, files=files)
+        files = {"file": (file_path, open(file_path, "rb"), "image/jpeg")}
+        data = {"tuid": tuid, "st": await self.st(), "_spr": "screen:2560x1440"}
+        r = requests.post(
+            "https://m.weibo.cn/api/chat/upload",
+            headers=self.header,
+            data=data,
+            files=files,
+        )
         if r.status_code != 200:
             raise UploadError(f"上传文件错误 {r.text}")
         result = r.json()
-        return result['data']['fids']
+        return result["data"]["fids"]
 
     async def upload_comment_file(self, file_path):
-        files = {
-            "pic": (file_path, open(file_path, 'rb'), 'image/jpeg')
-        }
-        data = {
-            "type": "json",
-            "st": await self.st(),
-            "_spr": "screen:2560x1440"
-        }
-        r = requests.post("https://m.weibo.cn/api/statuses/uploadPic", headers=self.header, data=data, files=files)
+        files = {"pic": (file_path, open(file_path, "rb"), "image/jpeg")}
+        data = {"type": "json", "st": await self.st(), "_spr": "screen:2560x1440"}
+        r = requests.post(
+            "https://m.weibo.cn/api/statuses/uploadPic",
+            headers=self.header,
+            data=data,
+            files=files,
+        )
         if r.status_code != 200:
             raise UploadError(f"上传文件错误 {r.text}")
         result = r.json()
@@ -217,22 +220,16 @@ class NetTool:
             "id": mid,
             "attitude": "heart",
             "st": await self.st(),
-            "_spr": "screen:2560x1440"
+            "_spr": "screen:2560x1440",
         }
         return await self.post("https://m.weibo.cn/api/attitudes/create", params=params)
 
     async def del_weibo(self, mid):
-        params = {
-            "mid": mid,
-            "st": await self.st(),
-            "_spr": "screen:2560x1440"
-        }
+        params = {"mid": mid, "st": await self.st(), "_spr": "screen:2560x1440"}
         return await self.post("https://m.weibo.cn/profile/delMyblog", params=params)
 
     async def get_user(self, uid):
-        params = {
-            "uid": uid
-        }
+        params = {"uid": uid}
         return await self.get(f"https://m.weibo.cn/profile/info", params=params)
 
     async def comment_weibo(self, mid, content, file_path=""):
@@ -241,7 +238,7 @@ class NetTool:
             "mid": mid,
             "content": content,
             "st": await self.st(),
-            "_spr": "screen:2560x1440"
+            "_spr": "screen:2560x1440",
         }
 
         if file_path:
@@ -254,13 +251,17 @@ class NetTool:
         return await self.post(f"https://m.weibo.cn/api/comments/create", params=params)
 
     async def del_comment(self, cid):
-        params = {
-            "cid": cid,
-            "st": await self.st(),
-            "_spr": "screen:2560x1440"
-        }
+        params = {"cid": cid, "st": await self.st(), "_spr": "screen:2560x1440"}
 
         return await self.post(f"https://m.weibo.cn/comments/destroy", params=params)
+
+    async def search_content(self, keyword):
+        self.header["x-xsrf-token"] = await self.st()
+        params = {"containerid": f"100103type=61&q={keyword}", "page_type": "searchall"}
+        return await self.get(
+            "https://m.weibo.cn/api/container/getIndex", params=params
+        )
+        # data.cards[0].mblog.text
 
     async def close(self):
         await self.session.close()

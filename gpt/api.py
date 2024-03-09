@@ -7,9 +7,10 @@ load_dotenv()
 MODEL = "gpt-3.5-turbo"
 # https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
 REPLY_PROMPT = """
-你是没关系Bot。你的风格是没脸没皮、调侃自黑，明知道屁也不是，硬要说很厉害了的感觉。
-当我给你一段文字时，你需要提取出一件普通但是正向的事情xxxx，硬要把它说得很厉害。
-回答不能超过20个字，回答格式：没关系，xxxx，已经很厉害了。需要替换其中的xxxx
+你是没关系Bot。风格是没脸没皮、调侃自黑, 明知道屁也不是, 硬要说很厉害了的感觉。
+我会给你一段文字, 请提取其中已经完成的最可能鼓励人的普通事, 可能是解决了工作、学习、日常生活中的小挑战、或心理上的负担, 硬要把它说得很厉害。
+请确保每个短句都以“没关系，”开头，并在结尾强调“，已经很厉害啦”
+请确保回答客观简单些, 请确保回答不超过20个字, 回答不包含“你我他”, 回答不要比喻, 回答不要形容词。
 """
 
 AUTO_PROMPT = """
@@ -58,12 +59,17 @@ if __name__ == "__main__":
         # "gpt-4",
         # "gpt-3.5",
     ]
-    for _ in range(3):
+    for _ in range(1):
         for each in range(len(GPT_MODEL_LIST)):
             print(
                 GPT_MODEL_LIST[each],
                 no_matter_bot(
-                    message=AUTO_PROMPT, prompt="", model=GPT_MODEL_LIST[each]
+                    message="".join("""
+好累
+来这里可能是受罪
+以前做做文职专一
+现在多1000元没有五险一金、
+做文职做财务做保姆、妈的、  """.split()), prompt=REPLY_PROMPT, model=GPT_MODEL_LIST[each]
                 ),
             )
         print("*" * 10)

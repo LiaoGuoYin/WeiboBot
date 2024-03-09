@@ -418,6 +418,29 @@ class Bot(User):
             user.latest_weibo.append(weibo)
 
         return user
+    
+    async def search_weibo(self, keyword: str) -> List[Weibo]:
+        """
+        搜索微博
+
+        :param keyword: 关键词
+        :param page: 页数
+        :return: 微博列表
+        """
+        result = await self.nettool.search_content(keyword)
+        try:
+            self.check_result(result)
+        except Exception as e:
+            self.logger.error(f"搜索微博错误 {keyword} {result} {e}")
+            return []
+        weibo_list = []
+        for status in result["data"]["cards"]:
+            if "mblog" in status:
+                weibo = Weibo()
+                weibo.parse(status["mblog"])
+                weibo_list.append(weibo)
+        return weibo_list
+      
 
     # region 事件装饰器
     def onNewMsg(self, func: FunctionType):

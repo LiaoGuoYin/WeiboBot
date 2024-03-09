@@ -2,13 +2,23 @@ from typing import Dict
 
 from .log import Log
 import time
+import re
 
-__all__ = ["main_header", "IntField", "StrField", "BoolField", "DictField", "ListField", "get_logger",
-           "parse_cookies"]
+__all__ = [
+    "main_header",
+    "IntField",
+    "StrField",
+    "BoolField",
+    "DictField",
+    "ListField",
+    "get_logger",
+    "parse_cookies",
+    "remove_html_tags_in",
+]
 
 
 def main_header(cookies: bytes) -> Dict[str, str]:
-    headers_raw = b'''
+    headers_raw = b"""
             accept: application/json, text/plain, */*
     accept-encoding: gzip, deflate, br
     accept-language: zh-CN,zh;q=0.9
@@ -24,7 +34,7 @@ def main_header(cookies: bytes) -> Dict[str, str]:
     user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36
     x-requested-with: XMLHttpRequest
     x-xsrf-token: 1d1b9c
-            '''
+            """
 
     return formatHeader(headers_raw, cookies)
 
@@ -82,14 +92,22 @@ def parse_cookies(cookies: str) -> list:
         if k == "XSRF-TOKEN":
             domain = ".m.weibo.cn"
 
-        result.append({
-            "domain": domain,
-            "expiry": int(time.time()) + 60 * 60 * 24 * 365,
-            "name": k,
-            "path": "/",
-            "secure": False,
-            "httpOnly": False,
-            "value": v,
-        })
+        result.append(
+            {
+                "domain": domain,
+                "expiry": int(time.time()) + 60 * 60 * 24 * 365,
+                "name": k,
+                "path": "/",
+                "secure": False,
+                "httpOnly": False,
+                "value": v,
+            }
+        )
 
     return result
+
+
+def remove_html_tags_in(text):
+    cleanr = re.compile("<.*?>")
+    cleantext = re.sub(cleanr, "", text)
+    return cleantext

@@ -2,11 +2,12 @@ from WeiboBot import Bot
 from WeiboBot.message import Chat
 from WeiboBot.weibo import Weibo
 from WeiboBot.comment import Comment
-from dotenv import load_dotenv
+from WeiboBot.util import *
 
 import os
 import time
 from datetime import datetime
+from dotenv import load_dotenv
 
 from GPT.api import *
 
@@ -17,6 +18,7 @@ myBot = Bot(cookies=os.getenv("BOT_COOKIES"))
 
 @myBot.onNewWeibo  # 首页刷到时触发
 async def on_weibo(weibo: Weibo):
+    print(weibo.weibo_id)
     if weibo.original_weibo is None:  # 原创
         print(f"{weibo.text}")
 
@@ -43,8 +45,23 @@ async def on_tick():
     if datetime.now().minute == 0:
         print("hit tik, post now")
         await myBot.login()
-        await myBot.post_weibo(no_matter_bot(message=AUTO_PROMPT, prompt=''))
+        await myBot.post_weibo(search_weibo_and_reply())
         time.sleep(60)
+    else:
+        print("no tik")
+
+
+async def search_weibo_and_reply(message="累"):
+    result_list = await myBot.search_weibo(message)
+    for result in result_list:
+        result.text = remove_html_tags_in(result.text)
+        result_len = len(result.text)
+        if result_len > 5 and result_len < 100:
+            reply_text = no_matter_bot(result.text, prompt=REPLY_PROMPT)
+            # input(f"reply to {result.mid} {result.text} -> {reply_text}")
+            await myBot.comment_weibo(result.mid, reply_text)
+            return reply_text
+    print("search and reply done")
 
 
 if __name__ == "__main__":
