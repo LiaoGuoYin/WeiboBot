@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict
 
 from .log import Log
@@ -14,6 +15,7 @@ __all__ = [
     "get_logger",
     "parse_cookies",
     "remove_html_tags_in",
+    "convert_datestring_and_diff_time",
 ]
 
 
@@ -111,3 +113,14 @@ def remove_html_tags_in(text):
     cleanr = re.compile("<.*?>")
     cleantext = re.sub(cleanr, "", text)
     return cleantext
+
+
+def convert_datestring_and_diff_time(
+    datestring: str = "Sat Mar 09 12:01:58 +0800 2024",
+) -> int:
+    """
+    计算日期距离现在的时间差(s)
+    """
+    start_datetime = datetime.strptime(datestring, "%a %b %d %H:%M:%S %z %Y")
+    now = datetime.now(start_datetime.tzinfo)
+    return (now - start_datetime).seconds

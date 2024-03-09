@@ -250,6 +250,18 @@ class NetTool:
             params["picId"] = pic_ids
         return await self.post(f"https://m.weibo.cn/api/comments/create", params=params)
 
+    async def reply_comment(self, mid, cid, content):
+        params = {
+            "id": mid,
+            "mid": mid,
+            "cid": cid,
+            "reply": cid,
+            "content": content,
+            "st": await self.st(),
+            "_spr": "screen:2560x1440",
+        }
+        return await self.post(f"https://m.weibo.cn/api/comments/reply", params=params)
+
     async def del_comment(self, cid):
         params = {"cid": cid, "st": await self.st(), "_spr": "screen:2560x1440"}
 

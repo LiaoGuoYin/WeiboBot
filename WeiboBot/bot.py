@@ -1,5 +1,4 @@
 import asyncio
-import time
 from typing import Union, List, Callable
 from types import FunctionType
 
@@ -17,9 +16,15 @@ from WeiboBot.weibo import Weibo
 
 
 class Bot(User):
-    def __init__(self, username: str = "", password: str = "", cookies: str = "", loop_interval=1, action_interval=1,
-                 is_debug=False
-                 ):
+    def __init__(
+        self,
+        username: str = "",
+        password: str = "",
+        cookies: str = "",
+        loop_interval=1,
+        action_interval=1,
+        is_debug=False,
+    ):
         super(Bot, self).__init__()
         self.nettool = NetTool(username, password, cookies)
 
@@ -33,7 +38,7 @@ class Bot(User):
         self.action_interval = action_interval
         self.logger = get_logger(__name__, is_debug)
         self.loop_interval = loop_interval
-        self.db = TinyDB('WeiboBotDB.json')
+        self.db = TinyDB("WeiboBotDB.json")
 
     # region 数据库操作
     def is_weibo_read(self, mid: Union[str, int]) -> bool:
@@ -98,7 +103,8 @@ class Bot(User):
         self.parse(raw_data["data"]["user"])
 
         self.logger.info(
-            f"用户名:{self.screen_name},关注:{self.follow_count},粉丝:{self.followers_count},微博数量:{self.statuses_count}")
+            f"用户名:{self.screen_name},关注:{self.follow_count},粉丝:{self.followers_count},微博数量:{self.statuses_count}"
+        )
         self.logger.info(f"微博简介:{self.description}")
         self.logger.info(f"微博地址:{self.profile_url}")
         self.logger.info(f"微博头像:{self.profile_image_url}")
@@ -124,7 +130,9 @@ class Bot(User):
 
         return weibo
 
-    async def post_weibo(self, content: str, visible: VISIBLE = VISIBLE.ALL) -> Union[Weibo, None]:
+    async def post_weibo(
+        self, content: str, visible: VISIBLE = VISIBLE.ALL
+    ) -> Union[Weibo, None]:
         """
         发布微博
 
@@ -162,15 +170,18 @@ class Bot(User):
     def post_action(self, content: str, visible: VISIBLE = VISIBLE.ALL):
         self.action_list.append(Action(self.post_weibo, content, visible))
 
-    def repost_action(self, mid: Union[str, int], content: str = "转发微博", dualPost: bool = False):
+    def repost_action(
+        self, mid: Union[str, int], content: str = "转发微博", dualPost: bool = False
+    ):
         for action in self.action_list:
             if mid in action.args:
                 self.logger.info(f"动作序列中已存在{mid}的转发动作")
                 return
         self.action_list.append(Action(self.repost_weibo, mid, content, dualPost))
 
-    async def repost_weibo(self, mid: Union[str, int], content: str = "转发微博", dualPost: bool = False) -> Union[
-        Weibo, None]:
+    async def repost_weibo(
+        self, mid: Union[str, int], content: str = "转发微博", dualPost: bool = False
+    ) -> Union[Weibo, None]:
         """
         转发微博
 
@@ -191,7 +202,9 @@ class Bot(User):
         self.logger.info(f"转发微博 {weibo.detail_url()} 成功")
         return weibo
 
-    async def send_message(self, uid: Union[str, int], content: str = "", file_path: str = "") -> Union[Chat, None]:
+    async def send_message(
+        self, uid: Union[str, int], content: str = "", file_path: str = ""
+    ) -> Union[Chat, None]:
         """
         私信并返回聊天对象
 
@@ -211,7 +224,9 @@ class Bot(User):
         self.logger.info(f"私信成功")
         return chat
 
-    async def comment_weibo(self, mid: Union[str, int], content: str = "", file_path: str = "") -> Union[Comment, None]:
+    async def comment_weibo(
+        self, mid: Union[str, int], content: str = "", file_path: str = ""
+    ) -> Union[Comment, None]:
         result = await self.nettool.comment_weibo(mid, content, file_path)
         try:
             self.check_result(result)
@@ -221,6 +236,31 @@ class Bot(User):
         cmt = Comment()
         cmt.parse(result["data"])
         self.logger.info(f"评论成功 {cmt.root_weibo.detail_url()}#{cmt.id}")
+        return cmt
+
+    async def reply_weibo(
+        self,
+        mid: Union[str, int],
+        cid: Union[str, int],
+        content: str = "",
+    ) -> Union[Comment, None]:
+        """
+        回复某条微博的评论
+
+        :param mid: 微博id
+        :param cid: 评论id
+        :param content: 内容
+        :return: 评论对象
+        """
+        result = await self.nettool.reply_comment(mid, cid, content)
+        try:
+            self.check_result(result)
+        except Exception as e:
+            self.logger.error(f"回复评论错误 {mid} {cid} {result} {e}")
+            return None
+        cmt = Comment()
+        cmt.parse(result["data"])
+        self.logger.info(f"回复评论成功 {cmt.root_weibo.detail_url()}#{cmt.id}")
         return cmt
 
     async def del_comment(self, cid) -> int:
@@ -249,8 +289,6 @@ class Bot(User):
             self.logger.error(f"获取@我的评论 错误 {page} {result} {e}")
             return []
         result_list = []
-        if not result_list:
-            return result_list
         for dCmt in result["data"]:
             cmt = Comment()
             cmt.parse(dCmt)
@@ -264,7 +302,10 @@ class Bot(User):
             self.logger.warning(f"获取@我的评论失败:{e}")
             return
         for cmt in cmt_list:
-            if self.is_mention_cmt_read(cmt.mid):
+            # skip weibo comment out of 1 hour in event loop
+            if convert_datestring_and_diff_time(
+                cmt.created_at
+            ) > 60 * 60 or self.is_mention_cmt_read(cmt.mid):
                 continue
             for func in self.mention_cmt_handler:
                 try:
@@ -285,14 +326,16 @@ class Bot(User):
             scheme = dChat["scheme"]
             if unread > 0 and scheme.find("gid=") == -1:
                 try:
-                    oChat = await self.user_chat(dChat['user']["id"])
+                    oChat = await self.user_chat(dChat["user"]["id"])
                 except Exception as e:
                     self.logger.warning(f"获取聊天失败:{e}")
                     continue
                 if oChat is None:
                     self.logger.warning(f"获取聊天失败:{dChat}")
                     continue
-                oChat.msg_list = [oMsg for oMsg in oChat.msg_list[:unread] if oMsg.isDm()]
+                oChat.msg_list = [
+                    oMsg for oMsg in oChat.msg_list[:unread] if oMsg.isDm()
+                ]
                 for func in self.msg_handler:
                     try:
                         await func(oChat)
@@ -358,7 +401,9 @@ class Bot(User):
             return
         await self._scan_page(result)
 
-    async def user_chat(self, uid: Union[str, int], since_id: int = 0) -> Union[Chat, None]:
+    async def user_chat(
+        self, uid: Union[str, int], since_id: int = 0
+    ) -> Union[Chat, None]:
         result = await self.nettool.user_chat(uid, since_id)
         try:
             self.check_result(result)
@@ -418,7 +463,7 @@ class Bot(User):
             user.latest_weibo.append(weibo)
 
         return user
-    
+
     async def search_weibo(self, keyword: str) -> List[Weibo]:
         """
         搜索微博
@@ -440,7 +485,6 @@ class Bot(User):
                 weibo.parse(status["mblog"])
                 weibo_list.append(weibo)
         return weibo_list
-      
 
     # region 事件装饰器
     def onNewMsg(self, func: FunctionType):
