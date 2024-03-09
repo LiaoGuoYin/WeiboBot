@@ -35,9 +35,8 @@ async def on_msg(chat: Chat):
 
 @myBot.onMentionCmt  # 提及我的评论时触发
 async def on_mention_cmt(cmt: Comment):
-    reply = no_matter_bot(cmt.text)
-    await myBot.comment_weibo(cmt.mid, reply)
-    print(cmt.text, reply)
+    reply_content = no_matter_bot(cmt.text)
+    await myBot.reply_weibo(cmt.status["id"], cmt.mid, reply_content)
 
 
 @myBot.onTick  # 每次循环触发
@@ -48,7 +47,7 @@ async def on_tick():
         reply = await search_weibo_and_reply()
         await myBot.post_weibo(reply)
         time.sleep(60)
-    elif datetime.now().minute % 15 == 0: # every 10 minutes
+    elif datetime.now().minute % 21 == 0: # every  xx:21 xx:42
         await myBot.login()
         await search_weibo_and_reply()
         time.sleep(60)
@@ -57,7 +56,7 @@ async def on_tick():
 async def search_weibo_and_reply(message="累"):
     result_list = await myBot.search_weibo(message)
     for result in result_list:
-        result.text = remove_html_tags_in(result.text)
+        result.text = remove_html_tags_in(result.raw_text)
         result_len = len(result.text)
         if result_len > 10 and result_len < 100:
             reply_text = no_matter_bot(result.text, prompt=REPLY_PROMPT)
